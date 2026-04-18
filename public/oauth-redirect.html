@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OAuth Redirect</title>
+  </head>
+  <body>
+    <script>
+      (function() {
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = params.get('access_token');
+        const expiresIn = params.get('expires_in');
+        const error = params.get('error');
+
+        if (window.opener) {
+          if (accessToken) {
+            window.opener.postMessage({
+              type: 'oauth_success',
+              response: {
+                access_token: accessToken,
+                expires_in: expiresIn
+              }
+            }, window.location.origin);
+          } else if (error) {
+            window.opener.postMessage({
+              type: 'oauth_error',
+              error: error
+            }, window.location.origin);
+          }
+          window.close();
+        } else {
+          document.body.innerHTML = 'Authentication finished. You can close this window now.';
+        }
+      })();
+    </script>
+  </body>
+</html>
